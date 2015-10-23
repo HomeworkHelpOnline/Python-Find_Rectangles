@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.signal as sp
 
 def houghLines(edged,rho_res,theta_res,thresholdVotes,filterMultiple,thresholdPixels=0):
     
@@ -179,4 +180,20 @@ def plotHoughLines(rho,theta,image):
     ax1.set_xlim([0,image.shape[1]])
     
     plt.show()
+    
+def rgb2gray(image_rgb):
 
+    r, g, b = image_rgb[:,:,0], image_rgb[:,:,1], image_rgb[:,:,2]
+    image_gray = np.round(0.2989 * r + 0.5870 * g + 0.1140 * b).astype(np.uint8)
+
+    return image_gray
+    
+def blurImage(image_gray):
+    kernel = np.ones((2,2),np.float32)/4                     #Blurring kernel
+    #We will skip first line and first column to keep it more simple, it's zeroed out anyway.
+    #now for every pixel we change it with the average of 4 pixels(as the kernel): itself, pixel to left
+    #pixel up, and pixel up-left. It drifts some edges one pixel to bottom-down, but it does not matter as
+    #long as we use edged picture for the future work
+    res=sp.convolve2d(image_gray,kernel,mode='same')
+    
+    return np.round(res).astype(np.uint8)

@@ -1,35 +1,34 @@
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import cv2
-import numpy as np
+import matplotlib.pyplot as plt    #Used for plotting
+import matplotlib.image as mpimg   #Used for image read
+import cv2                         #Used functions: cvtColor, filter2D, Canny
+import numpy as np                 #Basic calculations library
 
-import customFunctions
+import customFunctions             #We will define some functions ourselves
 
-image_rgb = mpimg.imread('rectangles/rectangles.jpg')
+image_rgb = mpimg.imread('rectangles/rectangles.jpg')    #Reading image to array
+image_gray = customFunctions.rgb2gray(image_rgb)         #Converting rgb to gray
 
-#image_rgb = mpimg.imread(parameters.image)
-image_gray = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2GRAY)
+image_gray = customFunctions.blurImage(image_gray)       #Blurring gray image with custom function similar to OpenCV.filter2d
+                                                         #find it in paragraph Other Custom Functions Used
+edged = cv2.Canny(image_gray, 30, 130)                   #Finding edges, This is the only place we use OpenCV
 
-#blurring
-kernel = np.ones((2,2),np.float32)/4
-image_gray = cv2.filter2D(image_gray,-1,kernel)
+#Sometimes images have unnecessary lines at the edges and we don't whant to find them
+##Zero out the border 5px
+borderLen = 5                         #The width to zero out the borders, counted in pixels
+lenx, leny = edged.shape
 
+edged[0:borderLen,0:leny] = 0
+edged[lenx-borderLen:lenx,0:leny] = 0
+edged[0:lenx,0:borderLen] = 0
+edged[0:lenx,leny-borderLen:leny] = 0
+plt.imshow(edged)                     #Take a look at the edged picture
 
+##Save edged picture to jpg
+fig, ax1 = plt.subplots(ncols=1, nrows=1, figsize=(8, 4))
+ax1.set_axis_off()
+ax1.imshow(edged, cmap="bone")
+fig.savefig("Rectangles_edged.jpg")
 
-edged = cv2.Canny(image_gray, 30, 130)
-
-#zero out the border 5px
-lenx=edged.shape[0]
-leny=edged.shape[1]
-borderLen=5
-
-edged[0:borderLen,0:leny]=0
-edged[lenx-borderLen:lenx,0:leny]=0
-edged[0:lenx,0:borderLen]=0
-edged[0:lenx,leny-borderLen:leny]=0
-
-
-plt.imshow(edged)
 
 rho,theta = customFunctions.houghLines(edged,
                                        rho_res=1,
