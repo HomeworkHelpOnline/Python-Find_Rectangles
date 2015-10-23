@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt    #Used for plotting
 import matplotlib.image as mpimg   #Used for image read
-import cv2                         #Used functions: cvtColor, filter2D, Canny
+import cv2                         #Used for Canny only!
 import numpy as np                 #Basic calculations library
 
 import customFunctions             #We will define some functions ourselves
